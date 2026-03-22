@@ -1,79 +1,279 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>FNX War Planner</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FNX Canyon Clash Command Center</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-100 p-6">
+<body class="bg-slate-100 text-slate-900 min-h-screen">
 
-<h1 class="text-3xl font-bold mb-4">FNX War Planner</h1>
+  <div class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
 
-<div id="app"></div>
+    <!-- HEADER -->
+    <div class="bg-slate-900 text-white rounded-3xl shadow-xl overflow-hidden">
+      <div class="p-6 md:p-8 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+        <div>
+          <div class="uppercase tracking-[0.25em] text-slate-300 text-xs mb-2">FNX War Command</div>
+          <h1 class="text-3xl md:text-5xl font-black">Canyon Clash Command Center</h1>
+          <p class="text-slate-300 mt-3 max-w-2xl">
+            Live player assignment tool for battle planning, team balancing, and fast command decisions.
+          </p>
+        </div>
 
-<script>
-const players = [
-  "Ian","Bartyzel","ProBombes","Msciciel","Swahy",
-  "Wolfman","BaBaBu","Vrako","Ymos","VipeR"
-];
+        <div class="grid grid-cols-2 gap-3 min-w-[220px]">
+          <div class="bg-white/10 rounded-2xl px-4 py-3">
+            <div class="text-slate-300 text-sm">Assigned</div>
+            <div id="assignedCount" class="text-2xl font-bold">0</div>
+          </div>
+          <div class="bg-white/10 rounded-2xl px-4 py-3">
+            <div class="text-slate-300 text-sm">Subs</div>
+            <div id="subCount" class="text-2xl font-bold">0</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-let assignments = {};
+    <!-- TOP GRID -->
+    <div class="grid xl:grid-cols-[0.95fr_1.05fr] gap-6">
 
-function render() {
-  const app = document.getElementById("app");
-  app.innerHTML = "";
+      <!-- LEFT -->
+      <div class="space-y-6">
 
-  players.forEach(p => {
-    const div = document.createElement("div");
-    div.className = "bg-white p-3 rounded mb-2 flex justify-between";
+        <!-- PLAYER ASSIGNMENT -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
+          <div class="mb-4">
+            <h2 class="text-2xl font-bold">Player Assignment</h2>
+            <p class="text-slate-600 text-sm mt-1">Search a player and assign them live.</p>
+          </div>
 
-    const name = document.createElement("span");
-    name.innerText = p;
+          <input
+            id="searchInput"
+            type="text"
+            placeholder="Search player..."
+            class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 mb-4 outline-none focus:ring-2 focus:ring-slate-300"
+          />
 
-    const select = document.createElement("select");
-    ["SUB","A","B","C","D","E","F"].forEach(t => {
-      const opt = document.createElement("option");
-      opt.value = t;
-      opt.text = t;
-      select.appendChild(opt);
-    });
+          <div id="players" class="space-y-3 max-h-[700px] overflow-auto pr-1"></div>
+        </div>
 
-    select.value = assignments[p] || "SUB";
+        <!-- RULES -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
+          <div class="mb-4">
+            <h2 class="text-2xl font-bold">Core Rules</h2>
+            <p class="text-slate-600 text-sm mt-1">Quick reminders for battle day.</p>
+          </div>
 
-    select.onchange = () => {
-      assignments[p] = select.value;
-      render();
+          <div class="grid md:grid-cols-2 gap-3">
+            <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 font-semibold">Always keep 2 teams defending your assigned bridge.</div>
+            <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 font-semibold">Send your 3rd team to support another lane if needed.</div>
+            <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 font-semibold">Teams C and F act as flex support until their bridge opens.</div>
+            <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 font-semibold">Take enemy bridges to block Citadel access.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT -->
+      <div class="space-y-6">
+
+        <!-- TEAM BOARD -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
+          <div class="mb-4">
+            <h2 class="text-2xl font-bold">Live Team Board</h2>
+            <p class="text-slate-600 text-sm mt-1">Fancy version of your team assignment sheet.</p>
+          </div>
+
+          <div id="teams" class="grid md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+        </div>
+
+        <!-- MAP / COMMAND VIEW -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
+          <div class="mb-4">
+            <h2 class="text-2xl font-bold">Command Map View</h2>
+            <p class="text-slate-600 text-sm mt-1">Simple visual lane guide for A–F.</p>
+          </div>
+
+          <div class="relative rounded-3xl border border-slate-200 bg-[radial-gradient(circle_at_top,_#f8fafc,_#dbeafe)] min-h-[420px] overflow-hidden">
+            <div class="absolute top-5 left-1/2 -translate-x-1/2 bg-white border border-slate-300 rounded-full px-4 py-2 shadow text-sm font-bold">
+              Citadel / Center Pressure
+            </div>
+
+            <div class="absolute top-[10%] left-[68%] w-16 h-16 rounded-full bg-green-600 text-white font-black flex items-center justify-center shadow-xl border-4 border-white">D</div>
+            <div class="absolute top-[22%] left-[56%] w-16 h-16 rounded-full bg-amber-500 text-white font-black flex items-center justify-center shadow-xl border-4 border-white">C</div>
+            <div class="absolute top-[42%] left-[44%] w-16 h-16 rounded-full bg-blue-600 text-white font-black flex items-center justify-center shadow-xl border-4 border-white">B</div>
+            <div class="absolute top-[68%] left-[50%] w-16 h-16 rounded-full bg-rose-600 text-white font-black flex items-center justify-center shadow-xl border-4 border-white">A</div>
+            <div class="absolute top-[76%] left-[68%] w-16 h-16 rounded-full bg-violet-600 text-white font-black flex items-center justify-center shadow-xl border-4 border-white">F</div>
+            <div class="absolute top-[88%] left-[82%] w-16 h-16 rounded-full bg-fuchsia-600 text-white font-black flex items-center justify-center shadow-xl border-4 border-white">E</div>
+
+            <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <line x1="70" y1="12" x2="58" y2="24" stroke="rgba(234,179,8,0.7)" stroke-width="0.5" />
+              <line x1="58" y1="24" x2="46" y2="44" stroke="rgba(234,179,8,0.7)" stroke-width="0.5" />
+              <line x1="46" y1="44" x2="52" y2="70" stroke="rgba(234,179,8,0.7)" stroke-width="0.5" />
+              <line x1="52" y1="70" x2="70" y2="78" stroke="rgba(234,179,8,0.7)" stroke-width="0.5" />
+              <line x1="70" y1="78" x2="82" y2="90" stroke="rgba(234,179,8,0.7)" stroke-width="0.5" />
+            </svg>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const roster = [
+      "Ian","Bartyzel","ProBombes","Msciciel","Swahy",
+      "Wolfman","BaBaBu","Vrako","Ymos","VipeR",
+      "Brylant","Tchoupi","Sascha","Rimuru","Iska",
+      "Shadows","Stiw","Angelito","Sensei","Felzug",
+      "Moist","Jut","Grob","Ozzy","Arwen",
+      "Azz","Goat","Saturn","Canapial","Solo",
+      "Tyler","Sercan","Hamza","MrMoody","Groot","Ted","Striker","Zzzzz","Venom"
+    ];
+
+    const teamInfo = {
+      A: {
+        name: "Team A",
+        goal: "Attack Goal (I29)",
+        color: "bg-rose-100 border-rose-300 text-rose-900",
+        badge: "bg-rose-600"
+      },
+      B: {
+        name: "Team B",
+        goal: "Attack Goal (S29)",
+        color: "bg-blue-100 border-blue-300 text-blue-900",
+        badge: "bg-blue-600"
+      },
+      C: {
+        name: "Team C",
+        goal: "Attack Goal (S28)",
+        color: "bg-amber-100 border-amber-300 text-amber-900",
+        badge: "bg-amber-500"
+      },
+      D: {
+        name: "Team D",
+        goal: "Attack Goal (S19)",
+        color: "bg-green-100 border-green-300 text-green-900",
+        badge: "bg-green-600"
+      },
+      E: {
+        name: "Team E",
+        goal: "Attack Goal (I18)",
+        color: "bg-fuchsia-100 border-fuchsia-300 text-fuchsia-900",
+        badge: "bg-fuchsia-600"
+      },
+      F: {
+        name: "Team F",
+        goal: "Attack Goal (I27)",
+        color: "bg-violet-100 border-violet-300 text-violet-900",
+        badge: "bg-violet-600"
+      }
     };
 
-    div.appendChild(name);
-    div.appendChild(select);
-    app.appendChild(div);
-  });
+    let assignments = {
+      Ian: "A", Bartyzel: "A", ProBombes: "A", Msciciel: "A", Swahy: "A",
+      Wolfman: "B", BaBaBu: "B", Vrako: "B", Ymos: "B", VipeR: "B",
+      Brylant: "C", Tchoupi: "C", Sascha: "C", Rimuru: "C", Iska: "C",
+      Shadows: "D", Stiw: "D", Angelito: "D", Sensei: "D", Felzug: "D",
+      Moist: "E", Jut: "E", Grob: "E", Ozzy: "E", Arwen: "E",
+      Azz: "F", Goat: "F", Saturn: "F", Canapial: "F", Solo: "F",
+      Tyler: "SUB", Sercan: "SUB", Hamza: "SUB", MrMoody: "SUB",
+      Groot: "SUB", Ted: "SUB", Striker: "SUB", Zzzzz: "SUB", Venom: "SUB"
+    };
 
-  const teams = {};
-  ["A","B","C","D","E","F"].forEach(t => teams[t] = []);
-
-  for (let p in assignments) {
-    if (teams[assignments[p]]) {
-      teams[assignments[p]].push(p);
+    function buildTeams() {
+      return {
+        A: roster.filter(p => assignments[p] === "A"),
+        B: roster.filter(p => assignments[p] === "B"),
+        C: roster.filter(p => assignments[p] === "C"),
+        D: roster.filter(p => assignments[p] === "D"),
+        E: roster.filter(p => assignments[p] === "E"),
+        F: roster.filter(p => assignments[p] === "F"),
+        SUB: roster.filter(p => assignments[p] === "SUB" || !assignments[p])
+      };
     }
-  }
 
-  const teamDiv = document.createElement("div");
-  teamDiv.className = "mt-6";
+    function render() {
+      const playersDiv = document.getElementById("players");
+      const teamsDiv = document.getElementById("teams");
+      const searchValue = document.getElementById("searchInput").value.trim().toLowerCase();
+      const teams = buildTeams();
 
-  for (let t in teams) {
-    const block = document.createElement("div");
-    block.className = "bg-white p-4 rounded mb-3";
+      document.getElementById("assignedCount").textContent = roster.length - teams.SUB.length;
+      document.getElementById("subCount").textContent = teams.SUB.length;
 
-    block.innerHTML = "<b>Team " + t + "</b><br>" + teams[t].join(", ");
-    teamDiv.appendChild(block);
-  }
+      playersDiv.innerHTML = "";
+      teamsDiv.innerHTML = "";
 
-  app.appendChild(teamDiv);
-}
+      roster
+        .filter(player => !searchValue || player.toLowerCase().includes(searchValue))
+        .forEach(player => {
+          const row = document.createElement("div");
+          row.className = "rounded-2xl bg-slate-50 border border-slate-200 p-3 shadow-sm flex items-center justify-between gap-3";
 
-render();
-</script>
+          const left = document.createElement("div");
+          left.innerHTML = `
+            <div class="font-bold">${player}</div>
+            <div class="text-xs text-slate-500">Current: ${assignments[player] === "SUB" ? "Sub" : "Team " + assignments[player]}</div>
+          `;
+
+          const selectWrap = document.createElement("div");
+          selectWrap.className = "w-36";
+
+          const select = document.createElement("select");
+          select.className = "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold shadow-sm outline-none focus:ring-2 focus:ring-slate-300";
+
+          ["SUB","A","B","C","D","E","F"].forEach(team => {
+            const opt = document.createElement("option");
+            opt.value = team;
+            opt.text = team === "SUB" ? "Sub" : "Team " + team;
+            select.appendChild(opt);
+          });
+
+          select.value = assignments[player] || "SUB";
+
+          select.onchange = () => {
+            assignments[player] = select.value;
+            render();
+          };
+
+          selectWrap.appendChild(select);
+          row.appendChild(left);
+          row.appendChild(selectWrap);
+          playersDiv.appendChild(row);
+        });
+
+      ["A","B","C","D","E","F"].forEach(teamKey => {
+        const info = teamInfo[teamKey];
+        const card = document.createElement("div");
+        card.className = `rounded-3xl border p-4 shadow-sm ${info.color}`;
+
+        const players = teams[teamKey];
+        const playerHtml = players.length
+          ? players.map(name => `<div class="rounded-xl bg-white/80 border border-white/70 px-3 py-2 font-medium">${name}</div>`).join("")
+          : `<div class="rounded-xl border border-dashed border-white/70 px-3 py-6 text-sm font-medium text-center opacity-70">No players assigned</div>`;
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between gap-3 mb-3">
+            <div class="flex items-center gap-3">
+              <div class="h-9 w-9 rounded-full text-white text-sm font-bold flex items-center justify-center ${info.badge}">${teamKey}</div>
+              <div>
+                <div class="font-bold">${info.name}</div>
+                <div class="text-sm opacity-80">${info.goal}</div>
+              </div>
+            </div>
+            <div class="rounded-full bg-white/80 px-3 py-1 text-xs font-bold border border-white/70">${players.length}/5</div>
+          </div>
+          <div class="space-y-2 min-h-[180px]">${playerHtml}</div>
+        `;
+
+        teamsDiv.appendChild(card);
+      });
+    }
+
+    document.getElementById("searchInput").addEventListener("input", render);
+    render();
+  </script>
 
 </body>
 </html>
