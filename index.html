@@ -49,7 +49,7 @@
       </div>
     </div>
 
-    <div class="grid xl:grid-cols-[0.95fr_1.05fr] gap-6">
+    <div class="grid xl:grid-cols-[0.8fr_1.2fr] gap-6">
 
       <div class="space-y-6">
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
@@ -74,7 +74,7 @@
             <p class="text-slate-600 text-sm mt-1">Quick reminders for battle day.</p>
           </div>
 
-          <div class="grid md:grid-cols-2 gap-3">
+          <div class="grid gap-3">
             <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 font-semibold">Always keep 2 teams defending your assigned bridge.</div>
             <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 font-semibold">Send your 3rd team to support another lane if needed.</div>
             <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 font-semibold">Teams C and F act as flex support until their bridge opens.</div>
@@ -86,11 +86,11 @@
       <div class="space-y-6">
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
           <div class="mb-4">
-            <h2 class="text-2xl font-bold">Live Team Board</h2>
-            <p class="text-slate-600 text-sm mt-1">Fancy version of your team assignment sheet.</p>
+            <h2 class="text-2xl font-bold">Team Command Cards</h2>
+            <p class="text-slate-600 text-sm mt-1">Styled more like a clean dashboard.</p>
           </div>
 
-          <div id="teams" class="grid md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+          <div id="teams" class="space-y-5"></div>
         </div>
 
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
@@ -125,7 +125,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "fnx-canyon-clash-assignments-v1";
+    const STORAGE_KEY = "fnx-canyon-clash-assignments-v2";
 
     const roster = [
       "Ian","Bartyzel","ProBombes","Msciciel","Swahy",
@@ -138,12 +138,12 @@
     ];
 
     const teamInfo = {
-      A: { name: "Team A", goal: "Attack Goal (I29)", color: "bg-rose-100 border-rose-300 text-rose-900", badge: "bg-rose-600" },
-      B: { name: "Team B", goal: "Attack Goal (S29)", color: "bg-blue-100 border-blue-300 text-blue-900", badge: "bg-blue-600" },
-      C: { name: "Team C", goal: "Attack Goal (S28)", color: "bg-amber-100 border-amber-300 text-amber-900", badge: "bg-amber-500" },
-      D: { name: "Team D", goal: "Attack Goal (S19)", color: "bg-green-100 border-green-300 text-green-900", badge: "bg-green-600" },
-      E: { name: "Team E", goal: "Attack Goal (I18)", color: "bg-fuchsia-100 border-fuchsia-300 text-fuchsia-900", badge: "bg-fuchsia-600" },
-      F: { name: "Team F", goal: "Attack Goal (I27)", color: "bg-violet-100 border-violet-300 text-violet-900", badge: "bg-violet-600" }
+      A: { name: "Red Team", short: "A", goal: "Attack Goal (I29)", objectives: 6, color: "bg-rose-50 border-rose-300 text-rose-900", badge: "bg-rose-500", pill: "bg-rose-100 text-rose-900 border-rose-200", glow: "text-rose-900 [text-shadow:0_0_18px_rgba(244,63,94,0.35)]" },
+      B: { name: "Blue Team", short: "B", goal: "Attack Goal (S29)", objectives: 6, color: "bg-blue-50 border-blue-300 text-blue-900", badge: "bg-blue-500", pill: "bg-blue-100 text-blue-900 border-blue-200", glow: "text-blue-900 [text-shadow:0_0_18px_rgba(59,130,246,0.35)]" },
+      C: { name: "Gold Team", short: "C", goal: "Attack Goal (S28)", objectives: 6, color: "bg-amber-50 border-amber-300 text-amber-900", badge: "bg-amber-500", pill: "bg-amber-100 text-amber-900 border-amber-200", glow: "text-amber-900 [text-shadow:0_0_18px_rgba(245,158,11,0.35)]" },
+      D: { name: "Green Team", short: "D", goal: "Attack Goal (S19)", objectives: 6, color: "bg-green-50 border-green-300 text-green-900", badge: "bg-green-600", pill: "bg-green-100 text-green-900 border-green-200", glow: "text-green-900 [text-shadow:0_0_18px_rgba(34,197,94,0.35)]" },
+      E: { name: "Pink Team", short: "E", goal: "Attack Goal (I18)", objectives: 6, color: "bg-fuchsia-50 border-fuchsia-300 text-fuchsia-900", badge: "bg-fuchsia-500", pill: "bg-fuchsia-100 text-fuchsia-900 border-fuchsia-200", glow: "text-fuchsia-900 [text-shadow:0_0_18px_rgba(217,70,239,0.35)]" },
+      F: { name: "Purple Team", short: "F", goal: "Attack Goal (I27)", objectives: 6, color: "bg-violet-50 border-violet-300 text-violet-900", badge: "bg-violet-500", pill: "bg-violet-100 text-violet-900 border-violet-200", glow: "text-violet-900 [text-shadow:0_0_18px_rgba(139,92,246,0.35)]" }
     };
 
     const defaultAssignments = {
@@ -244,26 +244,61 @@
 
       ["A","B","C","D","E","F"].forEach(teamKey => {
         const info = teamInfo[teamKey];
-        const card = document.createElement("div");
-        card.className = `rounded-3xl border p-4 shadow-sm ${info.color}`;
-
         const players = teams[teamKey];
+
+        const card = document.createElement("div");
+        card.className = `rounded-[2rem] border-2 p-6 md:p-8 shadow-sm ${info.color}`;
+
         const playerHtml = players.length
-          ? players.map(name => `<div class="rounded-xl bg-white/80 border border-white/70 px-3 py-2 font-medium">${name}</div>`).join("")
-          : `<div class="rounded-xl border border-dashed border-white/70 px-3 py-6 text-sm font-medium text-center opacity-70">No players assigned</div>`;
+          ? players.map(name => `<span class="inline-flex items-center rounded-full px-5 py-2 text-sm md:text-base font-medium border ${info.pill}">${name}</span>`).join("")
+          : `<span class="inline-flex items-center rounded-full px-5 py-2 text-sm font-medium border border-slate-300 bg-white text-slate-500">No players assigned</span>`;
 
         card.innerHTML = `
-          <div class="flex items-center justify-between gap-3 mb-3">
-            <div class="flex items-center gap-3">
-              <div class="h-9 w-9 rounded-full text-white text-sm font-bold flex items-center justify-center ${info.badge}">${teamKey}</div>
-              <div>
-                <div class="font-bold">${info.name}</div>
-                <div class="text-sm opacity-80">${info.goal}</div>
+          <div class="flex flex-col md:flex-row gap-6 md:gap-8">
+            <div class="flex-shrink-0">
+              <div class="w-28 h-28 rounded-[2rem] ${info.badge} text-white flex items-center justify-center shadow-xl border-4 border-white/70">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-14 h-14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.5 12.5l1.8 1.8 3.2-4.1" />
+                </svg>
               </div>
             </div>
-            <div class="rounded-full bg-white/80 px-3 py-1 text-xs font-bold border border-white/70">${players.length}/5</div>
+
+            <div class="flex-1 min-w-0">
+              <div class="flex flex-col gap-3">
+                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                  <div>
+                    <h3 class="text-4xl md:text-6xl font-black leading-none ${info.glow}">${info.name}</h3>
+                    <div class="mt-2 text-base md:text-lg font-semibold opacity-80">${info.goal}</div>
+                  </div>
+                  <div class="rounded-full bg-white/80 px-4 py-2 text-sm md:text-base font-bold border border-white/70 self-start">
+                    ${players.length}/5 Players
+                  </div>
+                </div>
+
+                <div class="pt-2">
+                  <div class="flex items-center gap-3 text-lg font-bold mb-3">
+                    <span>👥</span>
+                    <span>Team Members</span>
+                  </div>
+                  <div class="flex flex-wrap gap-3">
+                    ${playerHtml}
+                  </div>
+                </div>
+
+                <div class="pt-4 flex flex-wrap gap-x-8 gap-y-3 text-base md:text-lg font-medium opacity-90">
+                  <div class="flex items-center gap-3">
+                    <span>🗺️</span>
+                    <span>${info.objectives} objectives</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span>🎯</span>
+                    <span>${info.short} Lane</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="space-y-2 min-h-[180px]">${playerHtml}</div>
         `;
 
         teamsDiv.appendChild(card);
