@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FNX War Planner</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 p-6">
+
+<h1 class="text-3xl font-bold mb-4">FNX War Planner</h1>
+
+<div id="app"></div>
+
+<script>
+const players = [
+  "Ian","Bartyzel","ProBombes","Msciciel","Swahy",
+  "Wolfman","BaBaBu","Vrako","Ymos","VipeR"
+];
+
+let assignments = {};
+
+function render() {
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+
+  players.forEach(p => {
+    const div = document.createElement("div");
+    div.className = "bg-white p-3 rounded mb-2 flex justify-between";
+
+    const name = document.createElement("span");
+    name.innerText = p;
+
+    const select = document.createElement("select");
+    ["SUB","A","B","C","D","E","F"].forEach(t => {
+      const opt = document.createElement("option");
+      opt.value = t;
+      opt.text = t;
+      select.appendChild(opt);
+    });
+
+    select.value = assignments[p] || "SUB";
+
+    select.onchange = () => {
+      assignments[p] = select.value;
+      render();
+    };
+
+    div.appendChild(name);
+    div.appendChild(select);
+    app.appendChild(div);
+  });
+
+  const teams = {};
+  ["A","B","C","D","E","F"].forEach(t => teams[t] = []);
+
+  for (let p in assignments) {
+    if (teams[assignments[p]]) {
+      teams[assignments[p]].push(p);
+    }
+  }
+
+  const teamDiv = document.createElement("div");
+  teamDiv.className = "mt-6";
+
+  for (let t in teams) {
+    const block = document.createElement("div");
+    block.className = "bg-white p-4 rounded mb-3";
+
+    block.innerHTML = "<b>Team " + t + "</b><br>" + teams[t].join(", ");
+    teamDiv.appendChild(block);
+  }
+
+  app.appendChild(teamDiv);
+}
+
+render();
+</script>
+
+</body>
+</html>
