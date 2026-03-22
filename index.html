@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>FNX War Planner</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-100 p-6">
+
+<h1 class="text-3xl font-bold mb-6">🔥 FNX War Planner</h1>
+
+<div class="grid md:grid-cols-2 gap-6">
+
+  <!-- PLAYER ASSIGN -->
+
+  <div>
+    <h2 class="text-xl font-bold mb-3">Assign Players</h2>
+    <div id="players"></div>
+  </div>
+
+  <!-- TEAM VIEW -->
+
+  <div>
+    <h2 class="text-xl font-bold mb-3">Teams</h2>
+    <div id="teams"></div>
+  </div>
+
+</div>
+
+<script>
+
+const roster = [
+  "Ian","Bartyzel","ProBombes","Msciciel","Swahy",
+  "Wolfman","BaBaBu","Vrako","Ymos","VipeR",
+  "Brylant","Tchoupi","Sascha","Rimuru","Iska",
+  "Shadows","Stiw","Angelito","Sensei","Felzug",
+  "Moist","Jut","Grob","Ozzy","Arwen",
+  "Azz","Goat","Saturn","Canapial","Solo"
+];
+
+let assignments = {};
+
+function render() {
+
+  const playerDiv = document.getElementById("players");
+  const teamDiv = document.getElementById("teams");
+
+  playerDiv.innerHTML = "";
+  teamDiv.innerHTML = "";
+
+  roster.forEach(p => {
+
+    const row = document.createElement("div");
+    row.className = "bg-white p-3 rounded mb-2 flex justify-between items-center";
+
+    const name = document.createElement("span");
+    name.innerText = p;
+
+    const select = document.createElement("select");
+    ["SUB","A","B","C","D","E","F"].forEach(t => {
+      const opt = document.createElement("option");
+      opt.value = t;
+      opt.text = t;
+      select.appendChild(opt);
+    });
+
+    select.value = assignments[p] || "SUB";
+
+    select.onchange = () => {
+      assignments[p] = select.value;
+      render();
+    };
+
+    row.appendChild(name);
+    row.appendChild(select);
+    playerDiv.appendChild(row);
+  });
+
+  const teams = {A:[],B:[],C:[],D:[],E:[],F:[]};
+
+  for (let p in assignments) {
+    if (teams[assignments[p]]) {
+      teams[assignments[p]].push(p);
+    }
+  }
+
+  for (let t in teams) {
+    const block = document.createElement("div");
+    block.className = "bg-white p-4 rounded mb-3";
+
+    const label = document.createElement("b");
+    label.textContent = "Team " + t;
+    block.appendChild(label);
+
+    block.appendChild(document.createElement("br"));
+
+    const members = document.createElement("span");
+    members.textContent = teams[t].length > 0 ? teams[t].join(", ") : "(no players)";
+    block.appendChild(members);
+
+    teamDiv.appendChild(block);
+  }
+}
+
+render();
+
+</script>
+
+</body>
+</html>
