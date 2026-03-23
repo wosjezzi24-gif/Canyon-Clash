@@ -1,5 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+  <style>
+@keyframes floatOne {
+  0% { transform: translate(0,0); }
+  50% { transform: translate(40px,25px); }
+  100% { transform: translate(0,0); }
+}
+
+@keyframes floatTwo {
+  0% { transform: translate(0,0); }
+  50% { transform: translate(-35px,-30px); }
+  100% { transform: translate(0,0); }
+}
+
+.animate-floatOne {
+  animation: floatOne 18s ease-in-out infinite;
+}
+
+.animate-floatTwo {
+  animation: floatTwo 26s ease-in-out infinite;
+}
+</style>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
