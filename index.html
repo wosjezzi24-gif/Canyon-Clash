@@ -87,7 +87,7 @@
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
           <div class="mb-4">
             <h2 class="text-2xl font-bold">Team Command Cards</h2>
-            <p class="text-slate-600 text-sm mt-1">Styled more like a clean dashboard.</p>
+            <p class="text-slate-600 text-sm mt-1">Tap a team to expand details.</p>
           </div>
 
           <div id="teams" class="space-y-5"></div>
@@ -119,7 +119,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "fnx-canyon-clash-assignments-v3";
+    const STORAGE_KEY = "fnx-canyon-clash-assignments-v4";
 
     const mapImages = {
       1: "./Canyon%20Map%201%20.png",
@@ -128,6 +128,7 @@
     };
 
     let selectedMap = 1;
+    let openTeam = "A";
 
     const roster = [
       "Ian","Bartyzel","ProBombes","Msciciel","Swahy",
@@ -140,12 +141,12 @@
     ];
 
     const teamInfo = {
-      A: { name: "Red Team", short: "A", goal: "Attack Goal", objectives: 6, color: "bg-rose-50 border-rose-300 text-rose-900", badge: "bg-rose-500", pill: "bg-rose-100 text-rose-900 border-rose-200", glow: "text-rose-900 [text-shadow:0_0_18px_rgba(244,63,94,0.35)]" },
-      B: { name: "Blue Team", short: "B", goal: "Attack Goal", objectives: 6, color: "bg-blue-50 border-blue-300 text-blue-900", badge: "bg-blue-500", pill: "bg-blue-100 text-blue-900 border-blue-200", glow: "text-blue-900 [text-shadow:0_0_18px_rgba(59,130,246,0.35)]" },
-      C: { name: "Gold Team", short: "C", goal: "Attack Goal", objectives: 6, color: "bg-amber-50 border-amber-300 text-amber-900", badge: "bg-amber-500", pill: "bg-amber-100 text-amber-900 border-amber-200", glow: "text-amber-900 [text-shadow:0_0_18px_rgba(245,158,11,0.35)]" },
-      D: { name: "Green Team", short: "D", goal: "Attack Goal", objectives: 6, color: "bg-green-50 border-green-300 text-green-900", badge: "bg-green-600", pill: "bg-green-100 text-green-900 border-green-200", glow: "text-green-900 [text-shadow:0_0_18px_rgba(34,197,94,0.35)]" },
-      E: { name: "Pink Team", short: "E", goal: "Attack Goal", objectives: 6, color: "bg-fuchsia-50 border-fuchsia-300 text-fuchsia-900", badge: "bg-fuchsia-500", pill: "bg-fuchsia-100 text-fuchsia-900 border-fuchsia-200", glow: "text-fuchsia-900 [text-shadow:0_0_18px_rgba(217,70,239,0.35)]" },
-      F: { name: "Purple Team", short: "F", goal: "Attack Goal", objectives: 6, color: "bg-violet-50 border-violet-300 text-violet-900", badge: "bg-violet-500", pill: "bg-violet-100 text-violet-900 border-violet-200", glow: "text-violet-900 [text-shadow:0_0_18px_rgba(139,92,246,0.35)]" }
+      A: { name: "Red Team", short: "A", goal: "Attack Goal", path: "A Route", objectives: 6, note: "Frontline pressure and central collapse timing.", color: "bg-rose-50 border-rose-300 text-rose-900", badge: "bg-rose-500", pill: "bg-rose-100 text-rose-900 border-rose-200", glow: "text-rose-900 [text-shadow:0_0_18px_rgba(244,63,94,0.35)]" },
+      B: { name: "Blue Team", short: "B", goal: "Attack Goal", path: "B Route", objectives: 6, note: "Strong central contest and fast reinforcement lane.", color: "bg-blue-50 border-blue-300 text-blue-900", badge: "bg-blue-500", pill: "bg-blue-100 text-blue-900 border-blue-200", glow: "text-blue-900 [text-shadow:0_0_18px_rgba(59,130,246,0.35)]" },
+      C: { name: "Gold Team", short: "C", goal: "Attack Goal", path: "C Route", objectives: 6, note: "Flex support and rotation pressure.", color: "bg-amber-50 border-amber-300 text-amber-900", badge: "bg-amber-500", pill: "bg-amber-100 text-amber-900 border-amber-200", glow: "text-amber-900 [text-shadow:0_0_18px_rgba(245,158,11,0.35)]" },
+      D: { name: "Green Team", short: "D", goal: "Attack Goal", path: "D Route", objectives: 6, note: "Stable side hold with bridge protection.", color: "bg-green-50 border-green-300 text-green-900", badge: "bg-green-600", pill: "bg-green-100 text-green-900 border-green-200", glow: "text-green-900 [text-shadow:0_0_18px_rgba(34,197,94,0.35)]" },
+      E: { name: "Pink Team", short: "E", goal: "Attack Goal", path: "E Route", objectives: 6, note: "Pressure lane with backup support potential.", color: "bg-fuchsia-50 border-fuchsia-300 text-fuchsia-900", badge: "bg-fuchsia-500", pill: "bg-fuchsia-100 text-fuchsia-900 border-fuchsia-200", glow: "text-fuchsia-900 [text-shadow:0_0_18px_rgba(217,70,239,0.35)]" },
+      F: { name: "Purple Team", short: "F", goal: "Attack Goal", path: "F Route", objectives: 6, note: "Flex lane and late rotation value.", color: "bg-violet-50 border-violet-300 text-violet-900", badge: "bg-violet-500", pill: "bg-violet-100 text-violet-900 border-violet-200", glow: "text-violet-900 [text-shadow:0_0_18px_rgba(139,92,246,0.35)]" }
     };
 
     const defaultAssignments = {
@@ -260,38 +261,51 @@
       ["A","B","C","D","E","F"].forEach(teamKey => {
         const info = teamInfo[teamKey];
         const players = teams[teamKey];
+        const expanded = openTeam === teamKey;
 
         const card = document.createElement("div");
-        card.className = `rounded-[2rem] border-2 p-6 md:p-8 shadow-sm ${info.color}`;
+        card.className = `rounded-[2rem] border-2 shadow-sm overflow-hidden ${info.color}`;
 
         const playerHtml = players.length
           ? players.map(name => `<span class="inline-flex items-center rounded-full px-5 py-2 text-sm md:text-base font-medium border ${info.pill}">${name}</span>`).join("")
           : `<span class="inline-flex items-center rounded-full px-5 py-2 text-sm font-medium border border-slate-300 bg-white text-slate-500">No players assigned</span>`;
 
         card.innerHTML = `
-          <div class="flex flex-col md:flex-row gap-6 md:gap-8">
-            <div class="flex-shrink-0">
-              <div class="w-28 h-28 rounded-[2rem] ${info.badge} text-white flex items-center justify-center shadow-xl border-4 border-white/70">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-14 h-14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.5 12.5l1.8 1.8 3.2-4.1" />
-                </svg>
+          <button class="team-toggle w-full text-left p-6 md:p-8">
+            <div class="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
+              <div class="flex-shrink-0">
+                <div class="w-24 h-24 rounded-[2rem] ${info.badge} text-white flex items-center justify-center shadow-xl border-4 border-white/70">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.5 12.5l1.8 1.8 3.2-4.1" />
+                  </svg>
+                </div>
               </div>
-            </div>
 
-            <div class="flex-1 min-w-0">
-              <div class="flex flex-col gap-3">
+              <div class="flex-1 min-w-0">
                 <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                   <div>
-                    <h3 class="text-4xl md:text-6xl font-black leading-none ${info.glow}">${info.name}</h3>
-                    <div class="mt-2 text-base md:text-lg font-semibold opacity-80">${info.goal}</div>
+                    <h3 class="text-3xl md:text-5xl font-black leading-none ${info.glow}">${info.name}</h3>
+                    <div class="mt-3 text-lg md:text-xl font-medium opacity-80">
+                      Path: <span class="font-bold">${info.path}</span>
+                    </div>
+                    <div class="mt-2 text-base md:text-lg opacity-80">
+                      ${players.length} members
+                    </div>
                   </div>
-                  <div class="rounded-full bg-white/80 px-4 py-2 text-sm md:text-base font-bold border border-white/70 self-start">
-                    ${players.length}/5 Players
+
+                  <div class="text-3xl md:text-4xl font-light opacity-70 self-start">
+                    ${expanded ? "−" : "+"}
                   </div>
                 </div>
+              </div>
+            </div>
+          </button>
 
-                <div class="pt-2">
+          <div class="${expanded ? 'block' : 'hidden'} px-6 md:px-8 pb-6 md:pb-8">
+            <div class="border-t border-black/10 pt-6">
+              <div class="grid gap-6">
+                <div>
                   <div class="flex items-center gap-3 text-lg font-bold mb-3">
                     <span>👥</span>
                     <span>Team Members</span>
@@ -301,20 +315,30 @@
                   </div>
                 </div>
 
-                <div class="pt-4 flex flex-wrap gap-x-8 gap-y-3 text-base md:text-lg font-medium opacity-90">
-                  <div class="flex items-center gap-3">
-                    <span>🗺️</span>
-                    <span>${info.objectives} objectives</span>
+                <div class="grid md:grid-cols-2 gap-4">
+                  <div class="bg-white/70 rounded-2xl border border-white/80 p-4">
+                    <div class="text-sm uppercase tracking-wide opacity-60 mb-2">Primary Goal</div>
+                    <div class="text-lg font-bold">${info.goal}</div>
                   </div>
-                  <div class="flex items-center gap-3">
-                    <span>🎯</span>
-                    <span>${info.short} Lane</span>
+                  <div class="bg-white/70 rounded-2xl border border-white/80 p-4">
+                    <div class="text-sm uppercase tracking-wide opacity-60 mb-2">Objectives</div>
+                    <div class="text-lg font-bold">${info.objectives}</div>
                   </div>
+                </div>
+
+                <div class="bg-white/70 rounded-2xl border border-white/80 p-4">
+                  <div class="text-sm uppercase tracking-wide opacity-60 mb-2">Team Note</div>
+                  <div class="text-base md:text-lg font-medium">${info.note}</div>
                 </div>
               </div>
             </div>
           </div>
         `;
+
+        card.querySelector(".team-toggle").addEventListener("click", () => {
+          openTeam = openTeam === teamKey ? "" : teamKey;
+          render();
+        });
 
         teamsDiv.appendChild(card);
       });
