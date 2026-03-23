@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -6,365 +7,138 @@
   <title>FNX Canyon Clash Command Center</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-100 text-slate-900 min-h-screen">
+
+<body class="min-h-screen text-white bg-[radial-gradient(circle_at_top,_#7f1d1d,_#020617)]">
 
   <div class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
 
-    <div class="bg-slate-900 text-white rounded-3xl shadow-xl overflow-hidden">
-      <div class="p-6 md:p-8 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
-        <div>
-          <div class="uppercase tracking-[0.25em] text-slate-300 text-xs mb-2">FNX War Command</div>
-          <h1 class="text-3xl md:text-5xl font-black">Canyon Clash Command Center</h1>
-          <p class="text-slate-300 mt-3 max-w-2xl">
-            Live player assignment tool for battle planning, team balancing, and fast command decisions.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3 min-w-[260px]">
-          <div class="bg-white/10 rounded-2xl px-4 py-3">
-            <div class="text-slate-300 text-sm">Assigned</div>
-            <div id="assignedCount" class="text-2xl font-bold">0</div>
-          </div>
-          <div class="bg-white/10 rounded-2xl px-4 py-3">
-            <div class="text-slate-300 text-sm">Subs</div>
-            <div id="subCount" class="text-2xl font-bold">0</div>
-          </div>
-        </div>
-      </div>
+```
+<!-- HEADER -->
+<div class="bg-black/40 backdrop-blur rounded-3xl shadow-xl border border-white/10">
+  <div class="p-6 md:p-8 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+    <div>
+      <div class="uppercase tracking-[0.25em] text-red-300 text-xs mb-2">FNX War Command</div>
+      <h1 class="text-3xl md:text-5xl font-black">Canyon Clash Command Center</h1>
+      <p class="text-red-200 mt-3 max-w-2xl">
+        Live player assignment tool for battle planning and team coordination.
+      </p>
     </div>
 
-    <div class="flex flex-wrap gap-3">
-      <button
-        id="resetBtn"
-        class="bg-white border border-slate-300 rounded-2xl px-4 py-2 font-semibold shadow-sm hover:bg-slate-50"
-      >
-        Reset to Default
-      </button>
-
-      <div
-        id="saveStatus"
-        class="bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-2xl px-4 py-2 font-semibold"
-      >
-        Ready
+    <div class="grid grid-cols-2 gap-3 min-w-[260px]">
+      <div class="bg-white/10 rounded-2xl px-4 py-3">
+        <div class="text-red-200 text-sm">Assigned</div>
+        <div id="assignedCount" class="text-2xl font-bold">0</div>
       </div>
-    </div>
-
-    <div class="grid xl:grid-cols-[0.8fr_1.2fr] gap-6">
-
-      <div class="space-y-6">
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
-          <div class="mb-4">
-            <h2 class="text-2xl font-bold">Player Assignment</h2>
-            <p class="text-slate-600 text-sm mt-1">Search a player and assign them live.</p>
-          </div>
-
-          <input
-            id="searchInput"
-            type="text"
-            placeholder="Search player..."
-            class="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 mb-4 outline-none focus:ring-2 focus:ring-slate-300"
-          />
-
-          <div id="players" class="space-y-3 max-h-[700px] overflow-auto pr-1"></div>
-        </div>
-
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
-          <div class="mb-4">
-            <h2 class="text-2xl font-bold">Core Rules</h2>
-            <p class="text-slate-600 text-sm mt-1">Quick reminders for battle day.</p>
-          </div>
-
-          <div class="grid gap-3">
-            <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 font-semibold">Always keep 2 teams defending your assigned bridge.</div>
-            <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 font-semibold">Send your 3rd team to support another lane if needed.</div>
-            <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 font-semibold">Teams C and F act as flex support until their bridge opens.</div>
-            <div class="bg-slate-50 rounded-2xl border border-slate-200 p-4 font-semibold">Take enemy bridges to block Citadel access.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="space-y-6">
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
-          <div class="mb-4">
-            <h2 class="text-2xl font-bold">Team Command Cards</h2>
-            <p class="text-slate-600 text-sm mt-1">Tap a team to expand details.</p>
-          </div>
-
-          <div id="teams" class="space-y-5"></div>
-        </div>
-
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
-          <div class="mb-4">
-            <h2 class="text-2xl font-bold">Canyon Map Selector</h2>
-            <p class="text-slate-600 text-sm mt-1">Switch between your 3 possible Canyon layouts.</p>
-          </div>
-
-          <div class="flex flex-wrap gap-3 mb-5">
-            <button data-map="1" class="map-btn bg-slate-900 text-white rounded-2xl px-4 py-2 font-semibold shadow-sm">Map 1</button>
-            <button data-map="2" class="map-btn bg-white border border-slate-300 rounded-2xl px-4 py-2 font-semibold shadow-sm hover:bg-slate-50">Map 2</button>
-            <button data-map="3" class="map-btn bg-white border border-slate-300 rounded-2xl px-4 py-2 font-semibold shadow-sm hover:bg-slate-50">Map 3</button>
-          </div>
-
-          <div class="rounded-3xl border border-slate-200 bg-slate-50 p-3">
-            <img
-              id="mapImage"
-              src="./Canyon%20Map%201%20.png"
-              alt="Selected Canyon Map"
-              class="w-full h-auto rounded-2xl shadow-sm"
-            />
-          </div>
-        </div>
+      <div class="bg-white/10 rounded-2xl px-4 py-3">
+        <div class="text-red-200 text-sm">Subs</div>
+        <div id="subCount" class="text-2xl font-bold">0</div>
       </div>
     </div>
   </div>
+</div>
 
-  <script>
-    const STORAGE_KEY = "fnx-canyon-clash-assignments-v4";
+<!-- MAP SECTION -->
+<div class="bg-black/40 backdrop-blur rounded-3xl border border-white/10 p-6">
+  <h2 class="text-2xl font-bold mb-4">Canyon Maps</h2>
 
-    const mapImages = {
-      1: "./Canyon%20Map%201%20.png",
-      2: "./Canyon%20Map%202%20.png",
-      3: "./Canyon%20Map%203.png"
-    };
+  <div class="flex gap-3 mb-5">
+    <button onclick="setMap(1)" class="px-4 py-2 bg-red-600 rounded-xl font-bold">Map 1</button>
+    <button onclick="setMap(2)" class="px-4 py-2 bg-white/10 rounded-xl">Map 2</button>
+    <button onclick="setMap(3)" class="px-4 py-2 bg-white/10 rounded-xl">Map 3</button>
+  </div>
 
-    let selectedMap = 1;
-    let openTeam = "A";
+  <img id="mapImage" src="./Canyon%20Map%201%20.png" class="rounded-2xl w-full">
+</div>
 
-    const roster = [
-      "Ian","Bartyzel","ProBombes","Msciciel","Swahy",
-      "Wolfman","BaBaBu","Vrako","Ymos","VipeR",
-      "Brylant","Tchoupi","Sascha","Rimuru","Iska",
-      "Shadows","Stiw","Angelito","Sensei","Felzug",
-      "Moist","Jut","Grob","Ozzy","Arwen",
-      "Azz","Goat","Saturn","Canapial","Solo",
-      "Tyler","Sercan","Hamza","MrMoody","Groot","Ted","Striker","Zzzzz","Venom"
-    ];
+<!-- PLAYER ASSIGN -->
+<div class="bg-black/40 backdrop-blur rounded-3xl border border-white/10 p-6">
+  <h2 class="text-2xl font-bold mb-4">Assign Players</h2>
+  <div id="players"></div>
+</div>
 
-    const teamInfo = {
-      A: { name: "Red Team", short: "A", goal: "Attack Goal", path: "A Route", objectives: 6, note: "Frontline pressure and central collapse timing.", color: "bg-rose-50 border-rose-300 text-rose-900", badge: "bg-rose-500", pill: "bg-rose-100 text-rose-900 border-rose-200", glow: "text-rose-900 [text-shadow:0_0_18px_rgba(244,63,94,0.35)]" },
-      B: { name: "Blue Team", short: "B", goal: "Attack Goal", path: "B Route", objectives: 6, note: "Strong central contest and fast reinforcement lane.", color: "bg-blue-50 border-blue-300 text-blue-900", badge: "bg-blue-500", pill: "bg-blue-100 text-blue-900 border-blue-200", glow: "text-blue-900 [text-shadow:0_0_18px_rgba(59,130,246,0.35)]" },
-      C: { name: "Gold Team", short: "C", goal: "Attack Goal", path: "C Route", objectives: 6, note: "Flex support and rotation pressure.", color: "bg-amber-50 border-amber-300 text-amber-900", badge: "bg-amber-500", pill: "bg-amber-100 text-amber-900 border-amber-200", glow: "text-amber-900 [text-shadow:0_0_18px_rgba(245,158,11,0.35)]" },
-      D: { name: "Green Team", short: "D", goal: "Attack Goal", path: "D Route", objectives: 6, note: "Stable side hold with bridge protection.", color: "bg-green-50 border-green-300 text-green-900", badge: "bg-green-600", pill: "bg-green-100 text-green-900 border-green-200", glow: "text-green-900 [text-shadow:0_0_18px_rgba(34,197,94,0.35)]" },
-      E: { name: "Pink Team", short: "E", goal: "Attack Goal", path: "E Route", objectives: 6, note: "Pressure lane with backup support potential.", color: "bg-fuchsia-50 border-fuchsia-300 text-fuchsia-900", badge: "bg-fuchsia-500", pill: "bg-fuchsia-100 text-fuchsia-900 border-fuchsia-200", glow: "text-fuchsia-900 [text-shadow:0_0_18px_rgba(217,70,239,0.35)]" },
-      F: { name: "Purple Team", short: "F", goal: "Attack Goal", path: "F Route", objectives: 6, note: "Flex lane and late rotation value.", color: "bg-violet-50 border-violet-300 text-violet-900", badge: "bg-violet-500", pill: "bg-violet-100 text-violet-900 border-violet-200", glow: "text-violet-900 [text-shadow:0_0_18px_rgba(139,92,246,0.35)]" }
-    };
+<!-- TEAMS -->
+<div id="teams" class="space-y-4"></div>
+```
 
-    const defaultAssignments = {
-      Ian: "A", Bartyzel: "A", ProBombes: "A", Msciciel: "A", Swahy: "A",
-      Wolfman: "B", BaBaBu: "B", Vrako: "B", Ymos: "B", VipeR: "B",
-      Brylant: "C", Tchoupi: "C", Sascha: "C", Rimuru: "C", Iska: "C",
-      Shadows: "D", Stiw: "D", Angelito: "D", Sensei: "D", Felzug: "D",
-      Moist: "E", Jut: "E", Grob: "E", Ozzy: "E", Arwen: "E",
-      Azz: "F", Goat: "F", Saturn: "F", Canapial: "F", Solo: "F",
-      Tyler: "SUB", Sercan: "SUB", Hamza: "SUB", MrMoody: "SUB",
-      Groot: "SUB", Ted: "SUB", Striker: "SUB", Zzzzz: "SUB", Venom: "SUB"
-    };
+  </div>
 
-    function loadAssignments() {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (!saved) return { ...defaultAssignments };
-        const parsed = JSON.parse(saved);
-        return { ...defaultAssignments, ...parsed };
-      } catch {
-        return { ...defaultAssignments };
-      }
-    }
+<script>
 
-    let assignments = loadAssignments();
+const mapImages = {
+  1: "./Canyon%20Map%201%20.png",
+  2: "./Canyon%20Map%202%20.png",
+  3: "./Canyon%20Map%203.png"
+};
 
-    function saveAssignments() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(assignments));
-      const status = document.getElementById("saveStatus");
-      status.textContent = "Saved";
-      setTimeout(() => {
-        status.textContent = "Ready";
-      }, 1200);
-    }
+function setMap(num){
+  document.getElementById("mapImage").src = mapImages[num];
+}
 
-    function buildTeams() {
-      return {
-        A: roster.filter(p => assignments[p] === "A"),
-        B: roster.filter(p => assignments[p] === "B"),
-        C: roster.filter(p => assignments[p] === "C"),
-        D: roster.filter(p => assignments[p] === "D"),
-        E: roster.filter(p => assignments[p] === "E"),
-        F: roster.filter(p => assignments[p] === "F"),
-        SUB: roster.filter(p => assignments[p] === "SUB" || !assignments[p])
-      };
-    }
+const roster = ["Ian","Bartyzel","ProBombes","Msciciel","Swahy","Wolfman","BaBaBu"];
 
-    function updateMapButtons() {
-      document.querySelectorAll(".map-btn").forEach(btn => {
-        const mapNum = Number(btn.dataset.map);
-        if (mapNum === selectedMap) {
-          btn.className = "map-btn bg-slate-900 text-white rounded-2xl px-4 py-2 font-semibold shadow-sm";
-        } else {
-          btn.className = "map-btn bg-white border border-slate-300 rounded-2xl px-4 py-2 font-semibold shadow-sm hover:bg-slate-50";
-        }
-      });
+let assignments = {};
 
-      document.getElementById("mapImage").src = mapImages[selectedMap];
-    }
+function render(){
 
-    function render() {
-      const playersDiv = document.getElementById("players");
-      const teamsDiv = document.getElementById("teams");
-      const searchValue = document.getElementById("searchInput").value.trim().toLowerCase();
-      const teams = buildTeams();
+  const playersDiv = document.getElementById("players");
+  const teamsDiv = document.getElementById("teams");
 
-      document.getElementById("assignedCount").textContent = roster.length - teams.SUB.length;
-      document.getElementById("subCount").textContent = teams.SUB.length;
+  playersDiv.innerHTML = "";
+  teamsDiv.innerHTML = "";
 
-      playersDiv.innerHTML = "";
-      teamsDiv.innerHTML = "";
+  roster.forEach(p => {
 
-      roster
-        .filter(player => !searchValue || player.toLowerCase().includes(searchValue))
-        .forEach(player => {
-          const row = document.createElement("div");
-          row.className = "rounded-2xl bg-slate-50 border border-slate-200 p-3 shadow-sm flex items-center justify-between gap-3";
+    const row = document.createElement("div");
+    row.className = "bg-white/10 p-3 rounded mb-2 flex justify-between";
 
-          const left = document.createElement("div");
-          left.innerHTML = `
-            <div class="font-bold">${player}</div>
-            <div class="text-xs text-slate-500">Current: ${assignments[player] === "SUB" ? "Sub" : "Team " + assignments[player]}</div>
-          `;
+    const name = document.createElement("span");
+    name.innerText = p;
 
-          const selectWrap = document.createElement("div");
-          selectWrap.className = "w-36";
+    const select = document.createElement("select");
 
-          const select = document.createElement("select");
-          select.className = "w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold shadow-sm outline-none focus:ring-2 focus:ring-slate-300";
+    ["SUB","A","B","C"].forEach(t=>{
+      const opt = document.createElement("option");
+      opt.value = t;
+      opt.text = t;
+      select.appendChild(opt);
+    });
 
-          ["SUB","A","B","C","D","E","F"].forEach(team => {
-            const opt = document.createElement("option");
-            opt.value = team;
-            opt.text = team === "SUB" ? "Sub" : "Team " + team;
-            select.appendChild(opt);
-          });
+    select.value = assignments[p] || "SUB";
 
-          select.value = assignments[player] || "SUB";
-
-          select.onchange = () => {
-            assignments[player] = select.value;
-            saveAssignments();
-            render();
-          };
-
-          selectWrap.appendChild(select);
-          row.appendChild(left);
-          row.appendChild(selectWrap);
-          playersDiv.appendChild(row);
-        });
-
-      ["A","B","C","D","E","F"].forEach(teamKey => {
-        const info = teamInfo[teamKey];
-        const players = teams[teamKey];
-        const expanded = openTeam === teamKey;
-
-        const card = document.createElement("div");
-        card.className = `rounded-[2rem] border-2 shadow-sm overflow-hidden ${info.color}`;
-
-        const playerHtml = players.length
-          ? players.map(name => `<span class="inline-flex items-center rounded-full px-5 py-2 text-sm md:text-base font-medium border ${info.pill}">${name}</span>`).join("")
-          : `<span class="inline-flex items-center rounded-full px-5 py-2 text-sm font-medium border border-slate-300 bg-white text-slate-500">No players assigned</span>`;
-
-        card.innerHTML = `
-          <button class="team-toggle w-full text-left p-6 md:p-8">
-            <div class="flex flex-col md:flex-row gap-6 md:gap-8 items-start">
-              <div class="flex-shrink-0">
-                <div class="w-24 h-24 rounded-[2rem] ${info.badge} text-white flex items-center justify-center shadow-xl border-4 border-white/70">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 4v5c0 5-3.5 8-7 9-3.5-1-7-4-7-9V7l7-4z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.5 12.5l1.8 1.8 3.2-4.1" />
-                  </svg>
-                </div>
-              </div>
-
-              <div class="flex-1 min-w-0">
-                <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-                  <div>
-                    <h3 class="text-3xl md:text-5xl font-black leading-none ${info.glow}">${info.name}</h3>
-                    <div class="mt-3 text-lg md:text-xl font-medium opacity-80">
-                      Path: <span class="font-bold">${info.path}</span>
-                    </div>
-                    <div class="mt-2 text-base md:text-lg opacity-80">
-                      ${players.length} members
-                    </div>
-                  </div>
-
-                  <div class="text-3xl md:text-4xl font-light opacity-70 self-start">
-                    ${expanded ? "−" : "+"}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </button>
-
-          <div class="${expanded ? 'block' : 'hidden'} px-6 md:px-8 pb-6 md:pb-8">
-            <div class="border-t border-black/10 pt-6">
-              <div class="grid gap-6">
-                <div>
-                  <div class="flex items-center gap-3 text-lg font-bold mb-3">
-                    <span>👥</span>
-                    <span>Team Members</span>
-                  </div>
-                  <div class="flex flex-wrap gap-3">
-                    ${playerHtml}
-                  </div>
-                </div>
-
-                <div class="grid md:grid-cols-2 gap-4">
-                  <div class="bg-white/70 rounded-2xl border border-white/80 p-4">
-                    <div class="text-sm uppercase tracking-wide opacity-60 mb-2">Primary Goal</div>
-                    <div class="text-lg font-bold">${info.goal}</div>
-                  </div>
-                  <div class="bg-white/70 rounded-2xl border border-white/80 p-4">
-                    <div class="text-sm uppercase tracking-wide opacity-60 mb-2">Objectives</div>
-                    <div class="text-lg font-bold">${info.objectives}</div>
-                  </div>
-                </div>
-
-                <div class="bg-white/70 rounded-2xl border border-white/80 p-4">
-                  <div class="text-sm uppercase tracking-wide opacity-60 mb-2">Team Note</div>
-                  <div class="text-base md:text-lg font-medium">${info.note}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-
-        card.querySelector(".team-toggle").addEventListener("click", () => {
-          openTeam = openTeam === teamKey ? "" : teamKey;
-          render();
-        });
-
-        teamsDiv.appendChild(card);
-      });
-
-      updateMapButtons();
-    }
-
-    document.getElementById("searchInput").addEventListener("input", render);
-
-    document.getElementById("resetBtn").addEventListener("click", () => {
-      const confirmed = confirm("Reset all assignments back to default?");
-      if (!confirmed) return;
-      assignments = { ...defaultAssignments };
-      saveAssignments();
+    select.onchange = ()=>{
+      assignments[p] = select.value;
       render();
-    });
+    };
 
-    document.querySelectorAll(".map-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        selectedMap = Number(btn.dataset.map);
-        updateMapButtons();
-      });
-    });
+    row.appendChild(name);
+    row.appendChild(select);
+    playersDiv.appendChild(row);
 
-    render();
-  </script>
+  });
+
+  const teams = {A:[],B:[],C:[]};
+
+  for(let p in assignments){
+    if(teams[assignments[p]]){
+      teams[assignments[p]].push(p);
+    }
+  }
+
+  for(let t in teams){
+
+    const block = document.createElement("div");
+    block.className = "bg-white/10 p-4 rounded";
+
+    block.innerHTML = "<b>Team "+t+"</b><br>"+teams[t].join(", ");
+    teamsDiv.appendChild(block);
+
+  }
+
+}
+
+render();
+
+</script>
 
 </body>
 </html>
