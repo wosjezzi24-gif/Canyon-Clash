@@ -95,29 +95,23 @@
 
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-5 md:p-6">
           <div class="mb-4">
-            <h2 class="text-2xl font-bold">Command Map View</h2>
-            <p class="text-slate-600 text-sm mt-1">Simple visual lane guide for A–F.</p>
+            <h2 class="text-2xl font-bold">Canyon Map Selector</h2>
+            <p class="text-slate-600 text-sm mt-1">Switch between your 3 possible Canyon layouts.</p>
           </div>
 
-          <div class="relative rounded-3xl border border-slate-200 bg-[radial-gradient(circle_at_top,_#f8fafc,_#dbeafe)] min-h-[420px] overflow-hidden">
-            <div class="absolute top-5 left-1/2 -translate-x-1/2 bg-white border border-slate-300 rounded-full px-4 py-2 shadow text-sm font-bold">
-              Citadel / Center Pressure
-            </div>
+          <div class="flex flex-wrap gap-3 mb-5">
+            <button data-map="1" class="map-btn bg-slate-900 text-white rounded-2xl px-4 py-2 font-semibold shadow-sm">Map 1</button>
+            <button data-map="2" class="map-btn bg-white border border-slate-300 rounded-2xl px-4 py-2 font-semibold shadow-sm hover:bg-slate-50">Map 2</button>
+            <button data-map="3" class="map-btn bg-white border border-slate-300 rounded-2xl px-4 py-2 font-semibold shadow-sm hover:bg-slate-50">Map 3</button>
+          </div>
 
-            <div class="absolute top-[10%] left-[68%] w-16 h-16 rounded-full bg-green-600 text-white font-black flex items-center justify-center shadow-xl border-4 border-white">D</div>
-            <div class="absolute top-[22%] left-[56%] w-16 h-16 rounded-full bg-amber-500 text-white font-black flex items-center justify-center shadow-xl border-4 border-white">C</div>
-            <div class="absolute top-[42%] left-[44%] w-16 h-16 rounded-full bg-blue-600 text-white font-black flex items-center justify-center shadow-xl border-4 border-white">B</div>
-            <div class="absolute top-[68%] left-[50%] w-16 h-16 rounded-full bg-rose-600 text-white font-black flex items-center justify-center shadow-xl border-4 border-white">A</div>
-            <div class="absolute top-[76%] left-[68%] w-16 h-16 rounded-full bg-violet-600 text-white font-black flex items-center justify-center shadow-xl border-4 border-white">F</div>
-            <div class="absolute top-[88%] left-[82%] w-16 h-16 rounded-full bg-fuchsia-600 text-white font-black flex items-center justify-center shadow-xl border-4 border-white">E</div>
-
-            <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
-              <line x1="70" y1="12" x2="58" y2="24" stroke="rgba(234,179,8,0.7)" stroke-width="0.5" />
-              <line x1="58" y1="24" x2="46" y2="44" stroke="rgba(234,179,8,0.7)" stroke-width="0.5" />
-              <line x1="46" y1="44" x2="52" y2="70" stroke="rgba(234,179,8,0.7)" stroke-width="0.5" />
-              <line x1="52" y1="70" x2="70" y2="78" stroke="rgba(234,179,8,0.7)" stroke-width="0.5" />
-              <line x1="70" y1="78" x2="82" y2="90" stroke="rgba(234,179,8,0.7)" stroke-width="0.5" />
-            </svg>
+          <div class="rounded-3xl border border-slate-200 bg-slate-50 p-3">
+            <img
+              id="mapImage"
+              src="./Canyon%20Map%201%20.png"
+              alt="Selected Canyon Map"
+              class="w-full h-auto rounded-2xl shadow-sm"
+            />
           </div>
         </div>
       </div>
@@ -125,7 +119,15 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "fnx-canyon-clash-assignments-v2";
+    const STORAGE_KEY = "fnx-canyon-clash-assignments-v3";
+
+    const mapImages = {
+      1: "./Canyon%20Map%201%20.png",
+      2: "./Canyon%20Map%202%20.png",
+      3: "./Canyon%20Map%203.png"
+    };
+
+    let selectedMap = 1;
 
     const roster = [
       "Ian","Bartyzel","ProBombes","Msciciel","Swahy",
@@ -138,12 +140,12 @@
     ];
 
     const teamInfo = {
-      A: { name: "Red Team", short: "A", goal: "Attack Goal (I29)", objectives: 6, color: "bg-rose-50 border-rose-300 text-rose-900", badge: "bg-rose-500", pill: "bg-rose-100 text-rose-900 border-rose-200", glow: "text-rose-900 [text-shadow:0_0_18px_rgba(244,63,94,0.35)]" },
-      B: { name: "Blue Team", short: "B", goal: "Attack Goal (S29)", objectives: 6, color: "bg-blue-50 border-blue-300 text-blue-900", badge: "bg-blue-500", pill: "bg-blue-100 text-blue-900 border-blue-200", glow: "text-blue-900 [text-shadow:0_0_18px_rgba(59,130,246,0.35)]" },
-      C: { name: "Gold Team", short: "C", goal: "Attack Goal (S28)", objectives: 6, color: "bg-amber-50 border-amber-300 text-amber-900", badge: "bg-amber-500", pill: "bg-amber-100 text-amber-900 border-amber-200", glow: "text-amber-900 [text-shadow:0_0_18px_rgba(245,158,11,0.35)]" },
-      D: { name: "Green Team", short: "D", goal: "Attack Goal (S19)", objectives: 6, color: "bg-green-50 border-green-300 text-green-900", badge: "bg-green-600", pill: "bg-green-100 text-green-900 border-green-200", glow: "text-green-900 [text-shadow:0_0_18px_rgba(34,197,94,0.35)]" },
-      E: { name: "Pink Team", short: "E", goal: "Attack Goal (I18)", objectives: 6, color: "bg-fuchsia-50 border-fuchsia-300 text-fuchsia-900", badge: "bg-fuchsia-500", pill: "bg-fuchsia-100 text-fuchsia-900 border-fuchsia-200", glow: "text-fuchsia-900 [text-shadow:0_0_18px_rgba(217,70,239,0.35)]" },
-      F: { name: "Purple Team", short: "F", goal: "Attack Goal (I27)", objectives: 6, color: "bg-violet-50 border-violet-300 text-violet-900", badge: "bg-violet-500", pill: "bg-violet-100 text-violet-900 border-violet-200", glow: "text-violet-900 [text-shadow:0_0_18px_rgba(139,92,246,0.35)]" }
+      A: { name: "Red Team", short: "A", goal: "Attack Goal", objectives: 6, color: "bg-rose-50 border-rose-300 text-rose-900", badge: "bg-rose-500", pill: "bg-rose-100 text-rose-900 border-rose-200", glow: "text-rose-900 [text-shadow:0_0_18px_rgba(244,63,94,0.35)]" },
+      B: { name: "Blue Team", short: "B", goal: "Attack Goal", objectives: 6, color: "bg-blue-50 border-blue-300 text-blue-900", badge: "bg-blue-500", pill: "bg-blue-100 text-blue-900 border-blue-200", glow: "text-blue-900 [text-shadow:0_0_18px_rgba(59,130,246,0.35)]" },
+      C: { name: "Gold Team", short: "C", goal: "Attack Goal", objectives: 6, color: "bg-amber-50 border-amber-300 text-amber-900", badge: "bg-amber-500", pill: "bg-amber-100 text-amber-900 border-amber-200", glow: "text-amber-900 [text-shadow:0_0_18px_rgba(245,158,11,0.35)]" },
+      D: { name: "Green Team", short: "D", goal: "Attack Goal", objectives: 6, color: "bg-green-50 border-green-300 text-green-900", badge: "bg-green-600", pill: "bg-green-100 text-green-900 border-green-200", glow: "text-green-900 [text-shadow:0_0_18px_rgba(34,197,94,0.35)]" },
+      E: { name: "Pink Team", short: "E", goal: "Attack Goal", objectives: 6, color: "bg-fuchsia-50 border-fuchsia-300 text-fuchsia-900", badge: "bg-fuchsia-500", pill: "bg-fuchsia-100 text-fuchsia-900 border-fuchsia-200", glow: "text-fuchsia-900 [text-shadow:0_0_18px_rgba(217,70,239,0.35)]" },
+      F: { name: "Purple Team", short: "F", goal: "Attack Goal", objectives: 6, color: "bg-violet-50 border-violet-300 text-violet-900", badge: "bg-violet-500", pill: "bg-violet-100 text-violet-900 border-violet-200", glow: "text-violet-900 [text-shadow:0_0_18px_rgba(139,92,246,0.35)]" }
     };
 
     const defaultAssignments = {
@@ -189,6 +191,19 @@
         F: roster.filter(p => assignments[p] === "F"),
         SUB: roster.filter(p => assignments[p] === "SUB" || !assignments[p])
       };
+    }
+
+    function updateMapButtons() {
+      document.querySelectorAll(".map-btn").forEach(btn => {
+        const mapNum = Number(btn.dataset.map);
+        if (mapNum === selectedMap) {
+          btn.className = "map-btn bg-slate-900 text-white rounded-2xl px-4 py-2 font-semibold shadow-sm";
+        } else {
+          btn.className = "map-btn bg-white border border-slate-300 rounded-2xl px-4 py-2 font-semibold shadow-sm hover:bg-slate-50";
+        }
+      });
+
+      document.getElementById("mapImage").src = mapImages[selectedMap];
     }
 
     function render() {
@@ -303,6 +318,8 @@
 
         teamsDiv.appendChild(card);
       });
+
+      updateMapButtons();
     }
 
     document.getElementById("searchInput").addEventListener("input", render);
@@ -313,6 +330,13 @@
       assignments = { ...defaultAssignments };
       saveAssignments();
       render();
+    });
+
+    document.querySelectorAll(".map-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        selectedMap = Number(btn.dataset.map);
+        updateMapButtons();
+      });
     });
 
     render();
