@@ -4,63 +4,48 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FNX Canyon Clash Command Center</title>
+  <title>FNX Command Center</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body class="min-h-screen text-white bg-[radial-gradient(circle_at_top,_#7f1d1d,_#020617)]">
 
-  <div class="max-w-7xl mx-auto p-4 md:p-6 space-y-6">
+<div class="max-w-6xl mx-auto p-4 space-y-5">
+
+  <!-- HEADER -->
+
+  <div class="bg-black/40 backdrop-blur rounded-2xl p-5 border border-white/10">
+    <h1 class="text-2xl sm:text-3xl font-black">FNX Command Center</h1>
+    <p class="text-red-300 text-sm">Canyon Clash Planner</p>
+  </div>
+
+  <!-- MAP -->
+
+  <div class="bg-black/40 backdrop-blur rounded-2xl p-4 border border-white/10">
+    <div class="flex gap-2 mb-3">
+      <button onclick="setMap(1)" class="mapBtn bg-red-600 px-3 py-1 rounded-lg text-sm">Map 1</button>
+      <button onclick="setMap(2)" class="mapBtn bg-white/10 px-3 py-1 rounded-lg text-sm">Map 2</button>
+      <button onclick="setMap(3)" class="mapBtn bg-white/10 px-3 py-1 rounded-lg text-sm">Map 3</button>
+    </div>
 
 ```
-<!-- HEADER -->
-<div class="bg-black/40 backdrop-blur rounded-3xl shadow-xl border border-white/10">
-  <div class="p-6 md:p-8 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
-    <div>
-      <div class="uppercase tracking-[0.25em] text-red-300 text-xs mb-2">FNX War Command</div>
-      <h1 class="text-3xl md:text-5xl font-black">Canyon Clash Command Center</h1>
-      <p class="text-red-200 mt-3 max-w-2xl">
-        Live player assignment tool for battle planning and team coordination.
-      </p>
-    </div>
-
-    <div class="grid grid-cols-2 gap-3 min-w-[260px]">
-      <div class="bg-white/10 rounded-2xl px-4 py-3">
-        <div class="text-red-200 text-sm">Assigned</div>
-        <div id="assignedCount" class="text-2xl font-bold">0</div>
-      </div>
-      <div class="bg-white/10 rounded-2xl px-4 py-3">
-        <div class="text-red-200 text-sm">Subs</div>
-        <div id="subCount" class="text-2xl font-bold">0</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- MAP SECTION -->
-<div class="bg-black/40 backdrop-blur rounded-3xl border border-white/10 p-6">
-  <h2 class="text-2xl font-bold mb-4">Canyon Maps</h2>
-
-  <div class="flex gap-3 mb-5">
-    <button onclick="setMap(1)" class="px-4 py-2 bg-red-600 rounded-xl font-bold">Map 1</button>
-    <button onclick="setMap(2)" class="px-4 py-2 bg-white/10 rounded-xl">Map 2</button>
-    <button onclick="setMap(3)" class="px-4 py-2 bg-white/10 rounded-xl">Map 3</button>
-  </div>
-
-  <img id="mapImage" src="./Canyon%20Map%201%20.png" class="rounded-2xl w-full">
-</div>
-
-<!-- PLAYER ASSIGN -->
-<div class="bg-black/40 backdrop-blur rounded-3xl border border-white/10 p-6">
-  <h2 class="text-2xl font-bold mb-4">Assign Players</h2>
-  <div id="players"></div>
-</div>
-
-<!-- TEAMS -->
-<div id="teams" class="space-y-4"></div>
+<img id="mapImage" src="./Canyon%20Map%201%20.png" class="rounded-xl w-full">
 ```
 
   </div>
+
+  <!-- PLAYERS -->
+
+  <div class="bg-black/40 backdrop-blur rounded-2xl p-4 border border-white/10">
+    <h2 class="font-bold mb-3">Assign Players</h2>
+    <div id="players"></div>
+  </div>
+
+  <!-- TEAMS -->
+
+  <div id="teams" class="space-y-4"></div>
+
+</div>
 
 <script>
 
@@ -70,8 +55,8 @@ const mapImages = {
   3: "./Canyon%20Map%203.png"
 };
 
-function setMap(num){
-  document.getElementById("mapImage").src = mapImages[num];
+function setMap(n){
+  document.getElementById("mapImage").src = mapImages[n];
 }
 
 const roster = ["Ian","Bartyzel","ProBombes","Msciciel","Swahy","Wolfman","BaBaBu"];
@@ -89,12 +74,13 @@ function render(){
   roster.forEach(p => {
 
     const row = document.createElement("div");
-    row.className = "bg-white/10 p-3 rounded mb-2 flex justify-between";
+    row.className = "flex justify-between bg-white/10 p-2 rounded-lg mb-2 text-sm";
 
     const name = document.createElement("span");
     name.innerText = p;
 
     const select = document.createElement("select");
+    select.className = "bg-black/40 rounded px-2";
 
     ["SUB","A","B","C"].forEach(t=>{
       const opt = document.createElement("option");
@@ -119,19 +105,40 @@ function render(){
   const teams = {A:[],B:[],C:[]};
 
   for(let p in assignments){
-    if(teams[assignments[p]]){
-      teams[assignments[p]].push(p);
-    }
+    if(teams[assignments[p]]) teams[assignments[p]].push(p);
   }
 
   for(let t in teams){
 
-    const block = document.createElement("div");
-    block.className = "bg-white/10 p-4 rounded";
+    const card = document.createElement("div");
+    card.className = "bg-black/40 backdrop-blur border border-white/10 rounded-xl p-4";
 
-    block.innerHTML = "<b>Team "+t+"</b><br>"+teams[t].join(", ");
-    teamsDiv.appendChild(block);
+    const header = document.createElement("div");
+    header.className = "flex justify-between items-center cursor-pointer";
 
+    const title = document.createElement("div");
+    title.innerHTML = `<b>Team ${t}</b> <span class="text-red-300 text-sm">${teams[t].length} players</span>`;
+
+    const toggle = document.createElement("span");
+    toggle.innerText = "+";
+
+    header.appendChild(title);
+    header.appendChild(toggle);
+
+    const body = document.createElement("div");
+    body.className = "hidden mt-3";
+
+    body.innerHTML = teams[t].map(p=>`<span class="bg-red-500/20 px-2 py-1 rounded mr-1 text-sm">${p}</span>`).join("");
+
+    header.onclick = ()=>{
+      const open = body.classList.contains("hidden");
+      body.classList.toggle("hidden");
+      toggle.innerText = open ? "-" : "+";
+    };
+
+    card.appendChild(header);
+    card.appendChild(body);
+    teamsDiv.appendChild(card);
   }
 
 }
